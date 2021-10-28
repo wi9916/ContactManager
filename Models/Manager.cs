@@ -13,7 +13,7 @@ namespace ContactManager.Models
         public int Id { get; set; }
 
         [Required(ErrorMessage = "No Name specified")]
-        [StringLength(40, MinimumLength = 5, ErrorMessage = "Name is to short or long")]
+        [StringLength(40, MinimumLength = 3, ErrorMessage = "Name is to short or long")]
         public string Name { get; set; }
         [Column("Date of birth")]
         public DateTime DateOfBirth { get; set; }

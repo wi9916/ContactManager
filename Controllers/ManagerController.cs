@@ -1,7 +1,12 @@
 ﻿using ContactManager.Interfaces;
 using ContactManager.Models;
+using CsvHelper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -13,6 +18,13 @@ namespace ContactManager.Controllers
         public ManagerController(IManagerService managerServic)
         {
             _managerServic = managerServic;
+
+            //using (var writer = new StreamWriter("\\file.csv"))
+            //using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+            //{
+            //    csv.WriteRecords(_managerServic.Get());
+            //}
+
             //var obj = new Manager()
             //{
             //    Name = "Oleg",
@@ -23,18 +35,43 @@ namespace ContactManager.Controllers
             //_managerServic.Add(obj);
             //_managerServic.Save();
         }
+        public ActionResult Index()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult Index(IFormFile file)
+        {
+            if (file == null || Path.GetExtension(file.FileName) != ".csv")
+                return View();
+
+            using (StreamReader reader = new StreamReader(file.OpenReadStream()))
+            using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+            {
+                var records = csv.GetRecords<Manager>();
+
+                foreach (var rec in records)
+                    _managerServic.Add(rec);
+
+                _managerServic.Save();
+            }
+
+            return RedirectToAction("Managers");
+        } 
+        
         [HttpGet]
-        public IActionResult Index()
+        public IActionResult Managers()
         {
             return View(_managerServic.Get());
         }
         [HttpGet]
         public ActionResult Details(int id)
         {
-            var food = _managerServic.Get(id);
-            if (food != null)
+            var manager = _managerServic.Get(id);
+            if (manager != null)
             {
-                return View(food);
+                return View(manager);
             }
 
             return NotFound();
@@ -76,7 +113,7 @@ namespace ContactManager.Controllers
                 return View(manager);
 
             _managerServic.Edit(manager);
-            return RedirectToAction("Index");
+            return RedirectToAction("Managers");
         }
 
         [HttpGet]
@@ -84,25 +121,7 @@ namespace ContactManager.Controllers
         {
             _managerServic.Delete(id);
             _managerServic.Save();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Managers));
         }
-        //[HttpPost]
-        //public IActionResult OnPostInsertCodeAsync(IFormFile upload)
-        //{
-        //    if (upload.FileName.EndsWith(".csv"))
-        //    {
-        //        using (var sreader = new StreamReader(upload.OpenReadStream()))
-        //        {
-        //            string[] headers = sreader.ReadLine().Split(',');     //Title
-        //            while (!sreader.EndOfStream)                          //get all the content in rows 
-        //            {
-        //                string[] rows = sreader.ReadLine().Split(',');
-        //                int Id = int.Parse(rows[0].ToString());
-        //                int NUM = int.Parse(rows[1].ToString());
-        //            }
-        //        }
-        //    }
-        //    return View();
-        //}
     }
 }

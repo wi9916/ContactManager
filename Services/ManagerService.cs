@@ -18,6 +18,7 @@ namespace ContactManager.Services
 
         public bool Add(Manager manager)
         {
+            manager.Id = default(int);
             _db.Managers.Add(manager);
             return true;
         }
