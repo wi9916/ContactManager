@@ -92,7 +92,7 @@ namespace ContactManager.Controllers
 
             _managerServic.Add(manager);
             _managerServic.Save();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Managers");
         }
 
         [HttpGet]
@@ -121,7 +121,7 @@ namespace ContactManager.Controllers
         {
             _managerServic.Delete(id);
             _managerServic.Save();
-            return RedirectToAction(nameof(Managers));
+            return RedirectToAction("Managers");
         }
     }
 }
